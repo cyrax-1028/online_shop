@@ -57,6 +57,7 @@ def order_detail(request, pk):
                     'Order successful sent'
 
                 )
+                return redirect('product_detail', pk=pk)
 
             else:
                 messages.add_message(
@@ -90,6 +91,7 @@ def comment_detail(request, pk):
                 product=product
             )
             comment.save()
+            return redirect('product_detail', pk=pk)
     else:
         form = CommentForm()
 
