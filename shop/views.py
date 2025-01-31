@@ -164,3 +164,6 @@ def comment_view(request, pk):
         'form': form
     }
     return render(request, 'shop/detail.html', context=context)
+
+def about(request):
+    return render(request, 'shop/about.html')
