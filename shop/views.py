@@ -1,23 +1,46 @@
 from typing import Optional
 from django.contrib import messages
-from django.shortcuts import render, get_object_or_404
-
 from django.contrib.auth.decorators import login_required
-from shop.models import Product, Category, Order, Comment
-from shop.forms import OrderForm, CommentForm
 from django.shortcuts import render, get_object_or_404, redirect
-from shop.forms import OrderForm, ProductModelForm
+
+from shop.models import Product, Category, Order, Comment
+from shop.forms import OrderForm, ProductModelForm, CommentModelForm
+
 
 # Create your views here.
 
 
 def index(request, category_id: Optional[int] = None):
+    search_query = request.GET.get('q', '')
+    filter_type = request.GET.get('filter', '')
     categories = Category.objects.all()
 
     if category_id:
-        products = Product.objects.filter(category_id=category_id)
+        if filter_type == 'expensive':
+            products = Product.objects.filter(category_id=category_id).order_by('-price')[:5]
+        elif filter_type == 'cheap':
+            products = Product.objects.filter(category_id=category_id).order_by('price')[:5]
+        elif filter_type == 'rating':
+            products = Product.objects.filter(category_id=category_id, rating__gte=4).order_by('-rating')
+
+        else:
+            products = Product.objects.filter(category_id=category_id)
+
     else:
-        products = Product.objects.all()
+        if filter_type == 'expensive':
+            products = Product.objects.all().order_by('-price')[:5]
+        elif filter_type == 'cheap':
+            products = Product.objects.all().order_by('price')[:5]
+        elif filter_type == 'rating':
+            products = Product.objects.filter(rating__gte=4).order_by('-rating')
+
+        else:
+            products = Product.objects.all()
+
+    if search_query:
+        products = Product.objects.filter(name__icontains=search_query)
+
+    # .order_by('-id')
 
     context = {
         'products': products,
@@ -28,9 +51,15 @@ def index(request, category_id: Optional[int] = None):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    comments = Comment.objects.filter(product_id = pk)
+    comments = Comment.objects.filter(product=product, is_negative=False)
+    related_products = Product.objects.filter(category_id=product.category).exclude(id=product.id)
 
-    return render(request, 'shop/detail.html', {'product': product, 'comments': comments})
+    context = {
+        'product': product,
+        'comments': comments,
+        'related_products': related_products
+    }
+    return render(request, 'shop/detail.html', context=context)
 
 
 def order_detail(request, pk):
@@ -57,7 +86,6 @@ def order_detail(request, pk):
                     'Order successful sent'
 
                 )
-                return redirect('product_detail', pk=pk)
 
             else:
                 messages.add_message(
@@ -76,32 +104,6 @@ def order_detail(request, pk):
 
     return render(request, 'shop/detail.html', context)
 
-def comment_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    if request.method == 'GET':
-        form = CommentForm(request.GET)
-        if form.is_valid():
-            full_name = request.GET.get('full_name')
-            email = request.GET.get('email')
-            comment = request.GET.get('comment')
-            comment = Comment.objects.create(
-                full_name=full_name,
-                email=email,
-                comment=comment,
-                product=product
-            )
-            comment.save()
-            return redirect('product_detail', pk=pk)
-    else:
-        form = CommentForm()
-
-    comments = Comment.objects.filter(product_id = pk)
-    context = {
-        'form': form,
-        'product': product,
-        'comments': comments
-    }
-    return render(request, 'shop/detail.html', context)
 
 @login_required
 def product_create(request):
@@ -128,6 +130,7 @@ def product_delete(request, pk):
     except Product.DoesNotExist as e:
         print(e)
 
+
 def product_edit(request, pk):
     product = Product.objects.get(id=pk)
     form = ProductModelForm(instance=product)
@@ -142,3 +145,22 @@ def product_edit(request, pk):
         'action': 'Edit'
     }
     return render(request, 'shop/create.html', context=context)
+
+
+def comment_view(request, pk):
+    product = get_object_or_404(Product, id=pk)
+    form = CommentModelForm()
+    if request.method == 'POST':
+        form = CommentModelForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.product = product
+            comment.save()
+            return redirect('product_detail', pk)
+
+    context = {
+        'product': product,
+        'form': form
+    }
+    return render(request, 'shop/detail.html', context=context)
