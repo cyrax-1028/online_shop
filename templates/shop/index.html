@@ -33,9 +33,12 @@
                 <a class="btn btn-outline-dark mt-auto" href="?filter=rating"> Rating </a>
             </div>
             {% if user.is_authenticated %}
-                <div class="col-1">
-                    <a class="btn btn-outline-success" href="{% url 'product_create' %}"> Add Product </a>
+                <div class="col-2">
+                    <a class="btn btn-success px-4 py-2" href="{% url 'product_create' %}">
+                        <i class="bi bi-plus-circle me-2"></i> Add Product
+                    </a>
                 </div>
+
             {% endif %}
 
 
