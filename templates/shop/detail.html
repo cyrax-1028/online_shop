@@ -42,29 +42,31 @@
                     </div>
                     <p class="lead">{{ product.description }}</p>
                     <div class="d-flex">
-                        <form method="get" action="{% url 'order_detail' product.id %}">
+                        <form method="post" action="{% url 'order_detail' product.id %}">
+                            {% csrf_token %}
                             <div class="form-group">
                                 <h2>Place an order</h2>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="formGroupExampleInput">Your name</label>
-                                <input type="text" name="full_name" class="form-control" placeholder="Your name">
+                                <input type="text" name="full_name" class="form-control" placeholder="Your name"
+                                       required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="formGroupExampleInput2">Your phone</label>
-                                <input type="text" name="phone_number" class="form-control" placeholder="Your phone">
+                                <input type="text" name="phone_number" class="form-control" placeholder="Your phone"
+                                       required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="formGroupExampleInput">Quantity</label>
-                                <input type="number" name="quantity" class="form-control" placeholder="Quantity">
+                                <input type="number" name="quantity" class="form-control" placeholder="Quantity" min="1"
+                                       required>
                             </div>
-
-
                             <div class="form-group mb-3">
-
                                 <input type="submit" class="btn btn-success" value="Send">
                             </div>
                         </form>
+
 
                     </div>
                     <div>
@@ -109,6 +111,7 @@
 
                     <form method="post" action="{% url 'comment_view' product.id %}">
                         {% csrf_token %}
+
                         <div class="form-group mb-3">
                             <label for="formGroupExampleInput">Your name</label>
                             <input type="text" name="full_name" class="form-control" placeholder="Your name">

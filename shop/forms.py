@@ -1,13 +1,15 @@
 from django import forms
 from phonenumber_field.modelfields import PhoneNumberField
 
-from shop.models import Product, Comment
+from shop.models import Product, Comment, Order
 
 
-class OrderForm(forms.Form):
-    full_name = forms.CharField()
+class OrderForm(forms.ModelForm):
     phone_number = PhoneNumberField(region='UZ')
-    quantity = forms.IntegerField()
+
+    class Meta:
+        model = Order
+        fields = ['full_name', 'phone_number', 'quantity']
 
 
 class ProductModelForm(forms.ModelForm):
@@ -15,10 +17,8 @@ class ProductModelForm(forms.ModelForm):
         model = Product
         fields = '__all__'
 
-        # exclude = ()
-
 
 class CommentModelForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['full_name','email','content']
+        fields = ['full_name', 'email', 'content']
