@@ -52,11 +52,12 @@ class ProductDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product = get_object_or_404(Product, pk=self.kwargs['pk'])
-        context['product'] = product
-        context['comments'] = Comment.objects.filter(product=product, is_negative=False)
-        context['related_products'] = Product.objects.filter(category_id=product.category).exclude(id=product.id)
+        product = self.object
+        context['comments'] = list(Comment.objects.filter(product=product, is_negative=False))
+        context['related_products'] = Product.objects.filter(category=product.category).exclude(
+            id=product.id).select_related('category')
         return context
+
 
 
 class CreateProduct(CreateView):
@@ -64,6 +65,11 @@ class CreateProduct(CreateView):
     template_name = 'shop/create.html'
     form_class = ProductModelForm
     success_url = reverse_lazy('products')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class DeleteProduct(DeleteView):
