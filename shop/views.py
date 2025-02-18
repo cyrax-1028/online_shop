@@ -79,11 +79,16 @@ class DeleteProduct(DeleteView):
 
 class EditProduct(UpdateView):
     model = Product
-    template_name = 'shop/create.html'
+    template_name = 'shop/update.html'
     form_class = ProductModelForm
 
     def get_success_url(self):
         return reverse_lazy('product_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class CommentView(CreateView):

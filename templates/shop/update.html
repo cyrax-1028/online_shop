@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahsulotni Tahrirlash</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Mahsulotni Tahrirlash</h2>
+    <div class="card shadow p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label">Mahsulot Nomi</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Tavsif</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ product.description }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="price" class="form-label">Narx</label>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" value="{{ product.price }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="discount" class="form-label">Chegirma (%)</label>
+                <input type="number" class="form-control" id="discount" name="discount" min="0" max="100" value="{{ product.discount }}">
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Rasm</label>
+                <input type="file" class="form-control" id="image" name="image">
+                {% if product.image %}
+                    <div class="mt-2">
+                        <img src="{{ product.image.url }}" alt="Mahsulot rasmi" class="img-fluid" style="max-width: 200px;">
+                    </div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Kategoriya</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">Kategoriya tanlang</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Miqdor</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="{{ product.quantity }}">
+            </div>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Reyting</label>
+                <select class="form-select" id="rating" name="rating">
+                    {% for value, label in product.RatingChoice.choices %}
+                        <option value="{{ value }}" {% if product.rating == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Saqlash</button>
+            <a href="{% url 'products' %}" class="btn btn-secondary">Bekor qilish</a>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
