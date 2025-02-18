@@ -39,11 +39,11 @@
                 {% endif %}
             </div>
             <div class="mb-3">
-                <label for="category" class="form-label">Kategoriya</label>
+                <label for="id_category" class="form-label">Kategoriya</label>
                 <select class="form-select" id="category" name="category">
                     <option value="">Kategoriya tanlang</option>
                     {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>{{ cat.title }}</option>
                     {% endfor %}
                 </select>
             </div>
